@@ -1,0 +1,8 @@
+name: 'Compilar Aplicación'
+description: 'Ejecuta la compilación nativa de .NET'
+runs:
+  using: 'composite'
+  steps:
+    - name: Build
+      run: dotnet build --no-restore -c Release
+      shell: bash
