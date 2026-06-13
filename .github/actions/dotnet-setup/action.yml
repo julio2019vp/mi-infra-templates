@@ -1,0 +1,9 @@
+name: 'Instalar SDK de .NET'
+description: 'Configura el entorno con la versión requerida'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
