@@ -2,11 +2,22 @@ name: Template CI-CD
 
 on:
   workflow_call:
+    inputs:
+      IMAGE_NAME: { type: string, required: true }
+      IMAGE_TAG:  { type: string, required: false , default: "latest"}
+      DOCKERFILE_PATH: { type: string, required: false }
+      ACR_REGISTRY: { type: string, required: true }
     secrets:
       AZURE_REGISTRY_USERNAME:
         required: true
       AZURE_REGISTRY_PASSWORD:
         required: true
+
+env:
+  IMAGE_NAME:      ${{ inputs.IMAGE_NAME }}
+  IMAGE_TAG:       ${{ inputs.IMAGE_TAG }}
+  DOCKERFILE_PATH: ${{ inputs.DOCKERFILE_PATH }}
+  ACR_REGISTRY:    ${{ inputs.ACR_REGISTRY }}
 
 jobs:
   build-and-test:
@@ -37,14 +48,14 @@ jobs:
       - name: Azure Container Registry Login
         uses: azure/docker-login@v2
         with:
-          login-server: miacr.azurecr.io   # <-- Aqui pones la URL de tu Azure Registry
+          login-server: ${{ env.ACR_REGISTRY }}   # <-- Aqui pones la URL de tu Azure Registry
           username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t miacr.azurecr.io/miapp:latest .
-          docker push miacr.azurecr.io/miapp:latest
+          docker build -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
   deploy:
     needs: publish-image
